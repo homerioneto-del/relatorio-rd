@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Planejamento Diário - Equipamentos RD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+*{font-family:Arial;box-sizing:border-box}
+body{margin:0;background:#f2f4f8;padding:18px}
+
+/* CONTAINER */
+.container{
+  max-width:1250px;
+  margin:auto;
+  background:#fff;
+  border-radius:8px;
+  box-shadow:0 0 10px rgba(0,0,0,.12);
+  overflow:hidden;
+}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid #cfcfcf}
+.tabs button{
+  flex:1;
+  padding:14px;
+  border:none;
+  background:#e9ebf0;
+  font-weight:bold;
+  cursor:pointer;
+  font-size:14px;
+}
+.tabs button.active{
+  background:#fff;
+  border-bottom:3px solid #7a8dbb;
+}
+
+/* CONTENT */
+.tab-content{display:none;padding:20px}
+.tab-content.active{display:block}
+
+/* FORM */
+.row{display:flex;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.field{flex:1;min-width:180px;display:flex;flex-direction:column}
+label{font-size:12px;margin-bottom:4px;color:#333}
+input, textarea{
+  padding:8px;
+  border:1px solid #cfcfcf;
+  border-radius:6px;
+  font-size:13px;
+}
+textarea{min-height:90px;resize:vertical}
+
+/* BUTTONS */
+button{padding:10px 15px;border:none;border-radius:6px;cursor:pointer}
+.primary{background:#7a8dbb;color:white;font-weight:bold}
+.gray{background:#e0e0e0;font-weight:bold}
+.danger{background:#d9534f;color:#fff;font-weight:bold}
+.success{background:#2e8b57;color:#fff;font-weight:bold}
+
+/* RELATÓRIO */
+.relatorio-box{
+  border:2px solid #000;
+  padding:10px;
+}
+
+/* TÍTULO SUPERIOR */
+.top-title{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:10px;
+  border:2px solid #000;
+  padding:10px;
+  font-weight:bold;
+  text-transform:uppercase;
+  font-size:14px;
+}
+
+/* CABEÇALHO */
+.header-grid{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:10px;
+  align-items:flex-start;
+}
+
+/* MODELO CABEÇALHO (IGUAL IMAGEM) */
+.header-modelo{
+  flex:1;
+  font-size:13px;
+  line-height:1.6;
+  border:2px solid #000;
+  padding:8px 10px;
+}
+
+.header-modelo .linha{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center;
+  margin-bottom:2px;
+}
+
+.header-modelo .lbl{
+  font-weight:bold;
+}
+
+.header-modelo .lbl2{
+  margin-left:30px;
+  font-weight:bold;
+}
+
+.header-modelo .val{
+  font-weight:normal;
+}
+
+/* LOGO */
+.header-right{
+  width:280px;
+  border:2px solid #000;
+  padding:6px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:110px;
+}
+
+.logo-img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+/* TÍTULO DA TABELA */
+.table-title{
+  text-align:center;
+  font-weight:bold;
+  margin:10px 0 6px;
+  text-transform:uppercase;
+  font-size:13px;
+}
+
+/* TABELA */
+table{
+  width:100%;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+
+th, td{
+  border:1.8px solid #000;
+  padding:6px 4px;
+  font-size:12px;
+  text-align:center;
+  vertical-align:middle;
+  word-wrap:break-word;
+}
+
+th{
+  background:#f3f3f3;
+  font-weight:bold;
+  font-size:12px;
+}
+
+/* LARGURAS */
+.col-equipe{width:7%}
+.col-integrantes{width:13%}
+.col-sub{width:10%}
+.col-alim{width:9%}
+.col-equip{width:10%}
+.col-atividade{width:20%}
+.col-hora{width:11%}
+.col-obs{width:10%}
+
+/* OBSERVAÇÕES */
+.obs-title{
+  margin-top:10px;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.obs-box{
+  border:2px solid #000;
+  padding:8px 10px;
+  font-size:12px;
+  line-height:1.5;
+  margin-top:6px;
+  min-height:80px;
+}
+
+/* PRINT */
+@media print{
+  body{background:#fff;padding:0}
+  .tabs, .btn-area{display:none}
+  .container{box-shadow:none;border-radius:0}
+  .tab-content{padding:0}
+  .relatorio-box{border:none}
+  .top-title{margin-bottom:8px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- ABAS -->
+  <div class="tabs">
+    <button class="active" onclick="openTab('atividades', this)">Atividades</button>
+    <button onclick="openTab('relatorio', this)">Relatório</button>
+  </div>
+
+  <!-- ========================= ATIVIDADES ========================= -->
+  <div id="atividades" class="tab-content active">
+
+    <h3 style="margin-top:0">Dados do Relatório</h3>
+
+    <div class="row">
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="dataRel">
+      </div>
+      <div class="field">
+        <label>Regional</label>
+        <input id="regionalRel" value="Metropolitana">
+      </div>
+      <div class="field">
+        <label>Área / Setor</label>
+        <input id="areaRel" value="Manutenção AT e Equipamentos.">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Elaborado por</label>
+        <input id="elaboradoRel" value="Lázaro Gomes.">
+      </div>
+      <div class="field">
+        <label>Cargo</label>
+        <input id="cargoElabRel" value="Controller de Automação AT / RD.">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Autorizado por</label>
+        <input id="autorizadoRel" value="F. Barbosa Leal Júnior.">
+      </div>
+      <div class="field">
+        <label>Cargo</label>
+        <input id="cargoAutRel" value="Executivo de Manutenção AT.">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Observações Gerais</label>
+        <textarea id="obsRel">Todas as equipes devem seguir NR-10 e NR-35 (trabalho em altura).
+Antes de qualquer intervenção nos equipamentos, é obrigatório informar o Centro de Operações (COI) e solicitar a emissão da PT (Permissão de Trabalho) ou TR (Tempo Real), conforme os procedimentos de segurança e operação vigentes.
+EPI obrigatório: capacete, luva dielétrica, cinto de segurança, botas de borracha.
+Em caso de chuva forte, suspender atividades externas e reagendar.</textarea>
+      </div>
+    </div>
+
+    <div class="btn-area" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" onclick="atualizarRelatorio()">🔄 Atualizar Relatório</button>
+      <button class="gray" onclick="salvarManual()">💾 Salvar Dados</button>
+      <button class="success" onclick="exportarPDF()">📄 Exportar PDF</button>
+      <button class="danger" onclick="limparTudo()">🧹 Limpar Tudo</button>
+    </div>
+
+    <hr style="margin:18px 0">
+
+    <h3 style="margin-top:0">Nova Atividade</h3>
+
+    <div class="row">
+      <div class="field"><label>Equipe</label><input id="equipe"></div>
+      <div class="field"><label>Integrantes</label><input id="integrantes"></div>
+      <div class="field"><label>Subestação</label><input id="sub"></div>
+      <div class="field"><label>Alimentador</label><input id="ali"></div>
+    </div>
+
+    <div class="row">
+      <div class="field"><label>Equipamento</label><input id="eqp"></div>
+      <div class="field"><label>Atividade Programada</label><input id="ativ"></div>
+      <div class="field"><label>Horário Previsto</label><input id="hor" placeholder="Ex: 10:00 AS 12:00"></div>
+      <div class="field"><label>Observação</label><input id="obs" placeholder="Ex: NDS - 45"></div>
+    </div>
+
+    <div class="btn-area" style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" onclick="add()">Adicionar</button>
+      <button class="danger" onclick="limparTabela()">🧹 Limpar Tabela</button>
+    </div>
+
+    <table style="margin-top:10px">
+      <thead>
+        <tr>
+          <th>EQUIPE</th>
+          <th>INTEGRANTES</th>
+          <th>SUB</th>
+          <th>ALIM</th>
+          <th>EQUIP</th>
+          <th>ATIVIDADE</th>
+          <th>HORA</th>
+          <th>OBS</th>
+          <th>AÇÃO</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaAtividades"></tbody>
+    </table>
+
+  </div>
+
+  <!-- ========================= RELATÓRIO (IGUAL IMAGEM) ========================= -->
+  <div id="relatorio" class="tab-content">
+
+    <div class="top-title">
+      PLANEJAMENTO DIÁRIO DE ATIVIDADES EQUIPES DE EQUIPAMENTOS RD
+    </div>
+
+    <div class="relatorio-box">
+
+      <div class="header-grid">
+
+        <!-- DADOS ESQUERDA -->
+        <div class="header-modelo">
+
+          <div class="linha">
+            <span class="lbl">Data</span>
+            <span class="val" id="rData">--/--/----</span>
+
+            <span class="lbl2">Regional</span>
+            <span class="val" id="rRegional">-</span>
+          </div>
+
+          <div class="linha">
+            <span class="lbl">Área / Setor:</span>
+            <span class="val" id="rArea">-</span>
+          </div>
+
+          <div class="linha">
+            <span class="lbl">Elaborado por:</span>
+            <span class="val" id="rElaborado">-</span>
+
+            <span class="lbl2">Cargo:</span>
+            <span class="val" id="rCargoElab">-</span>
+          </div>
+
+          <div class="linha">
+            <span class="lbl">Autorizado por:</span>
+            <span class="val" id="rAutorizado">-</span>
+
+            <span class="lbl2">Cargo:</span>
+            <span class="val" id="rCargoAut">-</span>
+          </div>
+
+        </div>
+
+        <!-- LOGO DIREITA -->
+        <div class="header-right">
+          <img src="logo-equatorial.png" class="logo-img" alt="Equatorial Energia">
+        </div>
+
+      </div>
+
+      <div class="table-title">ATIVIDADE DO DIA</div>
+
+      <table>
+        <thead>
+          <tr>
+            <th class="col-equipe">EQUIPE</th>
+            <th class="col-integrantes">INTEGRANTES</th>
+            <th class="col-sub">SUBESTAÇÃO</th>
+            <th class="col-alim">ALIMENTADOR</th>
+            <th class="col-equip">EQUIPAMENTO</th>
+            <th class="col-atividade">ATIVIDADE PROGRAMADA</th>
+            <th class="col-hora">HORÁRIO PREVISTO</th>
+            <th class="col-obs">OBSERVAÇÃO</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaRelatorio"></tbody>
+      </table>
+
+      <div class="obs-title">Observações Gerais:</div>
+      <div class="obs-box" id="rObs">-</div>
+
+    </div>
+
+    <div class="btn-area" style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="primary" onclick="window.print()">🖨 Imprimir Relatório</button>
+      <button class="gray" onclick="copiarRelatorio()">📋 Copiar Relatório (Texto)</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+/* =========================
+   SALVAR / CARREGAR (LOCAL)
+========================= */
+const STORAGE_KEY = "planejamento_rd_equatorial_v1";
+
+function salvarDados(){
+  const dados = {
+    dataRel: document.getElementById("dataRel").value,
+    regionalRel: document.getElementById("regionalRel").value,
+    areaRel: document.getElementById("areaRel").value,
+    elaboradoRel: document.getElementById("elaboradoRel").value,
+    cargoElabRel: document.getElementById("cargoElabRel").value,
+    autorizadoRel: document.getElementById("autorizadoRel").value,
+    cargoAutRel: document.getElementById("cargoAutRel").value,
+    obsRel: document.getElementById("obsRel").value,
+    atividades: []
+  };
+
+  document.querySelectorAll("#tabelaAtividades tr").forEach(tr=>{
+    let td = tr.querySelectorAll("td");
+    if(td.length >= 8){
+      dados.atividades.push({
+        equipe: td[0].innerText,
+        integrantes: td[1].innerText,
+        sub: td[2].innerText,
+        alim: td[3].innerText,
+        equip: td[4].innerText,
+        atividade: td[5].innerText,
+        hora: td[6].innerText,
+        obs: td[7].innerText
+      });
+    }
+  });
+
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(dados));
+}
+
+function carregarDados(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return;
+
+  try{
+    const dados = JSON.parse(raw);
+
+    if(dados.dataRel) document.getElementById("dataRel").value = dados.dataRel;
+    if(dados.regionalRel) document.getElementById("regionalRel").value = dados.regionalRel;
+    if(dados.areaRel) document.getElementById("areaRel").value = dados.areaRel;
+    if(dados.elaboradoRel) document.getElementById("elaboradoRel").value = dados.elaboradoRel;
+    if(dados.cargoElabRel) document.getElementById("cargoElabRel").value = dados.cargoElabRel;
+    if(dados.autorizadoRel) document.getElementById("autorizadoRel").value = dados.autorizadoRel;
+    if(dados.cargoAutRel) document.getElementById("cargoAutRel").value = dados.cargoAutRel;
+    if(dados.obsRel) document.getElementById("obsRel").value = dados.obsRel;
+
+    document.getElementById("tabelaAtividades").innerHTML = "";
+
+    if(Array.isArray(dados.atividades)){
+      dados.atividades.forEach(a=>{
+        inserirLinha(a.equipe,a.integrantes,a.sub,a.alim,a.equip,a.atividade,a.hora,a.obs);
+      });
+    }
+
+  }catch(e){
+    console.log("Erro ao carregar dados:", e);
+  }
+}
+
+/* =========================
+   TABS
+========================= */
+function openTab(tab, btn){
+  document.querySelectorAll(".tab-content").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("active"));
+  document.getElementById(tab).classList.add("active");
+  btn.classList.add("active");
+}
+
+/* =========================
+   RELATÓRIO
+========================= */
+function formatarDataBR(valor){
+  if(!valor) return "--/--/----";
+  let [ano, mes, dia] = valor.split("-");
+  return `${dia}/${mes}/${ano}`;
+}
+
+function atualizarRelatorio(){
+  document.getElementById("rData").innerText = formatarDataBR(document.getElementById("dataRel").value);
+  document.getElementById("rRegional").innerText = document.getElementById("regionalRel").value || "-";
+  document.getElementById("rArea").innerText = document.getElementById("areaRel").value || "-";
+
+  document.getElementById("rElaborado").innerText = document.getElementById("elaboradoRel").value || "-";
+  document.getElementById("rCargoElab").innerText = document.getElementById("cargoElabRel").value || "-";
+
+  document.getElementById("rAutorizado").innerText = document.getElementById("autorizadoRel").value || "-";
+  document.getElementById("rCargoAut").innerText = document.getElementById("cargoAutRel").value || "-";
+
+  let obs = document.getElementById("obsRel").value || "-";
+
+  let obsFormatado = obs
+    .replaceAll("\n", "<br>")
+    .replaceAll("NR-10", "<b>NR-10</b>")
+    .replaceAll("NR-35", "<b>NR-35</b>")
+    .replaceAll("Centro de Operações (COI)", "<b>Centro de Operações (COI)</b>")
+    .replaceAll("PT (Permissão de Trabalho)", "<b>PT (Permissão de Trabalho)</b>")
+    .replaceAll("TR (Tempo Real)", "<b>TR (Tempo Real)</b>")
+    .replaceAll("EPI obrigatório:", "<b>EPI obrigatório:</b>");
+
+  document.getElementById("rObs").innerHTML = obsFormatado;
+
+  let html = "";
+  document.querySelectorAll("#tabelaAtividades tr").forEach(tr=>{
+    let tds = tr.querySelectorAll("td");
+    if(tds.length >= 8){
+      html += "<tr>";
+      for(let i=0;i<8;i++){
+        html += `<td>${tds[i].innerText}</td>`;
+      }
+      html += "</tr>";
+    }
+  });
+
+  document.getElementById("tabelaRelatorio").innerHTML = html;
+
+  salvarDados();
+}
+
+/* =========================
+   ATIVIDADES
+========================= */
+function inserirLinha(equipe,integrantes,sub,ali,eqp,ativ,hor,obs){
+  let t = document.getElementById("tabelaAtividades");
+  let row = t.insertRow();
+
+  [equipe,integrantes,sub,ali,eqp,ativ,hor,obs].forEach(v=>{
+    row.insertCell().innerText = v;
+  });
+
+  let acao = row.insertCell();
+  acao.innerHTML = `<button class="danger" style="padding:6px 10px" onclick="removerLinha(this)">🗑</button>`;
+}
+
+function add(){
+  let campos = ["equipe","integrantes","sub","ali","eqp","ativ","hor","obs"];
+  let vazio = campos.some(id => !document.getElementById(id).value.trim());
+  if(vazio){
+    alert("Preencha todos os campos da atividade antes de adicionar.");
+    return;
+  }
+
+  inserirLinha(
+    document.getElementById("equipe").value.trim(),
+    document.getElementById("integrantes").value.trim(),
+    document.getElementById("sub").value.trim(),
+    document.getElementById("ali").value.trim(),
+    document.getElementById("eqp").value.trim(),
+    document.getElementById("ativ").value.trim(),
+    document.getElementById("hor").value.trim(),
+    document.getElementById("obs").value.trim()
+  );
+
+  campos.forEach(id=>document.getElementById(id).value="");
+
+  atualizarRelatorio();
+}
+
+function removerLinha(btn){
+  btn.closest("tr").remove();
+  atualizarRelatorio();
+}
+
+function limparTabela(){
+  if(confirm("Deseja realmente limpar toda a tabela?")){
+    document.getElementById("tabelaAtividades").innerHTML = "";
+    atualizarRelatorio();
+  }
+}
+
+function limparTudo(){
+  if(confirm("Deseja limpar TODOS os dados (inclusive observações e cabeçalho)?")){
+    localStorage.removeItem(STORAGE_KEY);
+
+    document.getElementById("regionalRel").value = "Metropolitana";
+    document.getElementById("areaRel").value = "Manutenção AT e Equipamentos.";
+    document.getElementById("elaboradoRel").value = "Lázaro Gomes.";
+    document.getElementById("cargoElabRel").value = "Controller de Automação AT / RD.";
+    document.getElementById("autorizadoRel").value = "F. Barbosa Leal Júnior.";
+    document.getElementById("cargoAutRel").value = "Executivo de Manutenção AT.";
+
+    document.getElementById("obsRel").value =
+`Todas as equipes devem seguir NR-10 e NR-35 (trabalho em altura).
+Antes de qualquer intervenção nos equipamentos, é obrigatório informar o Centro de Operações (COI) e solicitar a emissão da PT (Permissão de Trabalho) ou TR (Tempo Real), conforme os procedimentos de segurança e operação vigentes.
+EPI obrigatório: capacete, luva dielétrica, cinto de segurança, botas de borracha.
+Em caso de chuva forte, suspender atividades externas e reagendar.`;
+
+    document.getElementById("tabelaAtividades").innerHTML = "";
+    atualizarRelatorio();
+  }
+}
+
+/* =========================
+   COPIAR / EXPORTAR
+========================= */
+function salvarManual(){
+  atualizarRelatorio();
+  salvarDados();
+  alert("✅ Dados salvos com sucesso!");
+}
+
+function copiarRelatorio(){
+  atualizarRelatorio();
+
+  let texto = "";
+  texto += "PLANEJAMENTO DIÁRIO DE ATIVIDADES EQUIPES DE EQUIPAMENTOS RD\n\n";
+  texto += `Data: ${document.getElementById("rData").innerText}   Regional: ${document.getElementById("rRegional").innerText}\n`;
+  texto += `Área / Setor: ${document.getElementById("rArea").innerText}\n\n`;
+  texto += `Elaborado por: ${document.getElementById("rElaborado").innerText}   Cargo: ${document.getElementById("rCargoElab").innerText}\n`;
+  texto += `Autorizado por: ${document.getElementById("rAutorizado").innerText}   Cargo: ${document.getElementById("rCargoAut").innerText}\n\n`;
+
+  texto += "ATIVIDADE DO DIA\n";
+
+  let linhas = document.querySelectorAll("#tabelaRelatorio tr");
+  if(linhas.length === 0){
+    texto += "(Sem atividades cadastradas)\n";
+  }else{
+    linhas.forEach(tr=>{
+      let td = tr.querySelectorAll("td");
+      texto += `- Equipe: ${td[0].innerText} | Integrantes: ${td[1].innerText} | Sub: ${td[2].innerText} | Alim: ${td[3].innerText} | Equip: ${td[4].innerText} | Atividade: ${td[5].innerText} | Hora: ${td[6].innerText} | Obs: ${td[7].innerText}\n`;
+    });
+  }
+
+  texto += "\nObservações Gerais:\n";
+  texto += document.getElementById("obsRel").value;
+
+  navigator.clipboard.writeText(texto).then(()=>{
+    alert("Relatório copiado!");
+  });
+}
+
+function exportarPDF(){
+  document.querySelector(".tabs button:nth-child(2)").click();
+  setTimeout(()=>{
+    window.print();
+  }, 200);
+}
+
+/* =========================
+   AUTO UPDATE
+========================= */
+["dataRel","regionalRel","areaRel","elaboradoRel","cargoElabRel","autorizadoRel","cargoAutRel","obsRel"]
+.forEach(id=>{
+  document.getElementById(id).addEventListener("input", atualizarRelatorio);
+});
+
+/* =========================
+   INICIALIZAÇÃO
+========================= */
+window.onload = function(){
+  carregarDados();
+
+  if(!document.getElementById("dataRel").value){
+    let hoje = new Date();
+    let y = hoje.getFullYear();
+    let m = String(hoje.getMonth()+1).padStart(2,"0");
+    let d = String(hoje.getDate()).padStart(2,"0");
+    document.getElementById("dataRel").value = `${y}-${m}-${d}`;
+  }
+
+  atualizarRelatorio();
+};
+</script>
+
+</body>
+</html>
